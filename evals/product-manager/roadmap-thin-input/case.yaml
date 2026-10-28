@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: roadmap-thin-input
+description: A one-line request for next year's roadmap. Expect questions about goals, the list and the audience, not an invented roadmap.
+tags: [product-manager, roadmap, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    I need to put together a roadmap for next year. Can you help?
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks at least two of: the goals or strategy for the year, what is on the list today, who the roadmap is for, how many teams there are, or fixed commitments, and does not present a filled-in roadmap.
+      FAIL if the reply presents a roadmap with specific features, problems, metrics, targets or dates the user never gave.

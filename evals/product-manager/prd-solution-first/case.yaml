@@ -1,0 +1,23 @@
+schema_version: "1.1"
+name: prd-solution-first
+description: The user arrives with a solution and a deadline but no problem. Expect the reply to work back to the problem and evidence instead of inventing them.
+tags: [product-manager, prd, edge-case]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    CEO wants an AI chatbot in our help centre by end of Q1. Write the PRD so I can get eng started.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?prd"'
+  - name: problem-section-or-question
+    type: regex
+    pattern: '##\s*Problem\b|\bproblem\b[^\n?]{0,120}\?'
+    flags: i
+  - name: works-back-to-problem
+    type: llm
+    criteria: |
+      PASS if the reply works back to the problem: it asks what problem the chatbot should solve, for whom, and what evidence or metric supports it (for example ticket volume or time to resolution), or it drafts with the problem and evidence marked [TBC] and says the PRD is not ready for build until they are filled.
+      FAIL if the reply writes a problem statement or evidence section with figures the user never gave (ticket volumes, deflection rates, costs, satisfaction scores), or treats the chatbot as a validated solution without questioning the problem.

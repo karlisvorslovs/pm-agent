@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: impediment-log-thin-input
+description: A request to set up an impediment log with no blockers given. Expect questions or an empty log, never invented impediments.
+tags: [scrum-master, impediment-log, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you set up an impediment log for my team? We've got a few blockers at the moment.
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks what the blockers are (ideally also when each started, what it holds up, the Sprint Goal or who to escalate to), or gives an empty log with the columns and no filled-in rows.
+      FAIL if the reply fills the log with impediments, dates, ages or owners that the user never gave.

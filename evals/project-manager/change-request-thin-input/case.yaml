@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: change-request-thin-input
+description: A vague "the client wants a new feature" request. Expect questions about the change, the reason, the estimate and the tolerances, not invented impacts or approvers.
+tags: [project-manager, change-request, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    The client wants to add a new feature. Can you write up a change request?
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks at least three of these: what exactly the feature is, who asked and when, why they want it, the effort estimate and who made it, the tolerances or who can approve what, and any deadline for the decision. A CR template with [TBC] in every impact is acceptable.
+      FAIL if the reply states specific cost, effort or schedule impacts, or names an approver, that the user never gave.

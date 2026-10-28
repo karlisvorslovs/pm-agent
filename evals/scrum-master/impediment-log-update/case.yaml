@@ -1,0 +1,29 @@
+schema_version: "1.1"
+name: impediment-log-update
+description: An existing log pasted with one item resolved, one stuck and one new. Expect IDs kept, the resolved item moved to Closed, ages recalculated and the new item added as IMP-07.
+tags: [scrum-master, impediment-log, edge-case]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Update our impediment log please. Today is Wed 25 Nov 2026.
+    Changes: IMP-03 was fixed yesterday, platform team moved us to a new test cluster. IMP-05 still stuck, Tomas says he'll talk to legal's director this week. New one: the mobile team changed the login API without telling us, our app's login is broken on staging. Raised this morning, blocks the sprint goal.
+
+    | ID | Impediment | Impact on Sprint Goal | Raised | Age | Owner | Escalated to | Status | Next step |
+    |----|------------|-----------------------|--------|-----|-------|--------------|--------|-----------|
+    | IMP-03 | Test environment keeps going down | Blocks testing | Mon 16 Nov 2026 | 3 | Ines | Tomas | Escalated | Platform team to give an ETA |
+    | IMP-05 | Legal sign-off on cookie banner wording | Can't release | Tue 3 Nov 2026 | 12 | Ines | Tomas | Escalated | Tomas to chase legal |
+    | IMP-06 | Flaky end-to-end tests | Slows merges | Wed 18 Nov 2026 | 1 | Nora | | Open | Quarantine the flaky tests |
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?impediment-log"'
+  - name: new-id
+    type: regex
+    pattern: 'IMP-07'
+  - name: update-not-restart
+    type: llm
+    criteria: |
+      PASS if all of these hold: IMP-03, IMP-05 and IMP-06 keep their IDs and the new login API item is IMP-07; IMP-03 moves to a closed section with a resolved date of Tue 24 Nov 2026 rather than being deleted; ages are recalculated for Wed 25 Nov 2026 (IMP-05 at 16 working days, IMP-06 at 5, IMP-07 at 0); IMP-05 is flagged as more than a sprint old and needing a decision, with Tomas's talk with legal's director as the next step; and IMP-06 is flagged for escalation or follow-up because it is older than two working days (the reply does not have to name the rule).
+      FAIL if IMP-03 is deleted, if IDs are renumbered, if ages are left at their old values, or if the reply invents owners or facts not in the prompt (an [owner?] marker or the scrum master for IMP-07 is fine).

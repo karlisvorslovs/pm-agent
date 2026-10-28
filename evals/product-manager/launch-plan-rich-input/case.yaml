@@ -1,0 +1,23 @@
+schema_version: "1.1"
+name: launch-plan-rich-input
+description: A dated feature launch for one plan, with a beta, a goal and a flag. Expect a Tier 2 plan with a timeline counted back from launch day, correct weekdays, a staged rollout and a measurable rollback trigger.
+tags: [product-manager, launch-plan]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Launch plan please. We're releasing recurring invoices in Ledgerline on Tue 1 Dec 2026, for Pro plan customers only (4,200 accounts, about 30% of our base). No price change, nothing customers have to do. Closed beta with 25 customers since 2 Nov, no sev1/sev2 bugs open. Goal: 20% of Pro accounts create a recurring invoice within 30 days of launch. We have support, sales, marketing and a docs writer. The flag is called recurring_invoices.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?launch-plan"'
+  - name: has-go-no-go
+    type: regex
+    pattern: 'go\s*/\s*no[- ]?go'
+    flags: i
+  - name: tier-dates-rollout-rollback
+    type: llm
+    criteria: |
+      PASS if all of these hold: the plan proposes Tier 2 (or Tier 1 with a stated reason); the timeline is counted back from Tue 1 Dec 2026 and every date has the correct weekday (for reference: Tue 3 Nov, Tue 10 Nov, Tue 17 Nov, Tue 24 Nov, Mon 30 Nov, Tue 1 Dec, Wed 2 Dec, Thu 3 Dec, Tue 8 Dec, Tue 15 Dec 2026); the rollout uses the recurring_invoices flag with percentage steps and criteria to move between them; the rollback plan has a measurable trigger and says who decides (a role or [TBC] is fine); and a post-launch review date is set.
+      FAIL if any date has the wrong weekday, if the launch date is changed without a reason, or if the plan names people who are not in the prompt.

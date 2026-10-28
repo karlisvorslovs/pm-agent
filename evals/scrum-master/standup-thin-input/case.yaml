@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: standup-thin-input
+description: A vague request about the daily standup with no notes and no details. Expect questions about what the user needs and how the team works.
+tags: [scrum-master, standup, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you help with our daily standup?
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks what the user needs (for example running or fixing the meeting, or summarising notes) or asks about the team's situation, such as team size, how long it runs, room or remote, what goes wrong, or whether there is a Sprint Goal. General advice is fine if it is clearly presented as general.
+      FAIL if the reply writes up a meeting that was never described, or invents details about the team such as names, durations, blockers or problems.

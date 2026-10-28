@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: prioritise-thin-input
+description: A vague request to decide what to work on next quarter, with no list. Expect questions about the list, the goal and capacity, not an invented ranking.
+tags: [product-manager, prioritise, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    our backlog is a mess and I have to tell leadership what we're doing next quarter. what should we work on first?
+graders:
+  - name: asks-for-list-and-context
+    type: llm
+    criteria: |
+      PASS if the reply asks for the actual list of items and for at least two of: the goal or metric for the quarter, the team's capacity, reach or effort data per item, or whether there is a fixed release date. It may explain which method it would use and why.
+      FAIL if the reply ranks or scores items the user never listed, or invents reach, effort, impact or scores.

@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: working-agreements-thin-input
+description: A one-line request for agreements with no team context. Expect questions or a draft clearly marked as a proposal for the team to change.
+tags: [agile-coach, working-agreements, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    My team needs some working agreements. Can you write them?
+graders:
+  - name: asks-or-proposes
+    type: llm
+    criteria: |
+      PASS if the reply asks about details such as the team's size and setup, where the friction is, or whether there is an existing agreement, or offers a draft clearly labelled as a proposal for the team to discuss and change, with suggested numbers marked as suggestions or [TBC].
+      FAIL if the reply presents a finished set as the team's agreed working agreement, or invents details about the team such as names, time zones, tools or specific problems the user never mentioned.

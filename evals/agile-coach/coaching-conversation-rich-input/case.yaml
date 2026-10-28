@@ -1,0 +1,23 @@
+schema_version: "1.1"
+name: coaching-conversation-rich-input
+description: A self-referred engineering manager who is the bottleneck for every decision. Expect contracting, open GROW questions, and permission before any advice.
+tags: [agile-coach, coaching-conversation]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Prepping for a coaching 1:1 on Thu 5 Nov with Tomasz, engineering manager for two teams at Quillfield (B2B SaaS). He asked for it himself. His words last week: "everything waits for me, I'm the bottleneck for every decision and I'm working till 9pm." The teams escalate even small calls like which library to use. He's been EM for 8 months, before that he was the strongest dev on the team. We had one intro session already where we mostly got to know each other. 60 mins, on Teams.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?coaching-conversation"'
+  - name: grow-stage
+    type: regex
+    pattern: '\bReality\b'
+    flags: i
+  - name: coaches-not-prescribes
+    type: llm
+    criteria: |
+      PASS if the plan starts with contracting (what Tomasz wants from this session, confidentiality, the coach's role), gives open questions for each GROW stage, holds back solutions such as delegation techniques until Tomasz has generated his own options, and asks his permission before any switch to mentoring or teaching.
+      FAIL if the plan tells Tomasz what to do (for example presents a delegation framework as the answer) before the Options stage, if most of the questions are closed or leading ("Have you tried ...?", "Don't you think ...?"), or if it invents facts about Tomasz or his teams that are not in the prompt.

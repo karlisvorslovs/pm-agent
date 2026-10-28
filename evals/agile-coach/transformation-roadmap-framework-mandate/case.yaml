@@ -1,0 +1,19 @@
+schema_version: "1.1"
+name: transformation-roadmap-framework-mandate
+description: A CEO has mandated SAFe for 40 teams in about two months. Expect help that still asks what problem it solves and proposes starting smaller, without refusing or attacking SAFe.
+tags: [agile-coach, transformation-roadmap, edge-case]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Our CEO has decided we're going SAFe across all 40 teams by 1 January. I need the rollout plan by Friday. Training, ARTs, PI planning, the lot.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?transformation-roadmap"'
+  - name: problem-first-and-phased
+    type: llm
+    criteria: |
+      PASS if the reply asks, or marks as [TBC], what problem or outcome the change is meant to deliver, names the risk of converting 40 teams in about two months, and proposes a phased approach that starts with a smaller group (for example one release train or a few teams) with measures and review dates, while still helping with SAFe.
+      FAIL if it produces a plan that converts all 40 teams by 1 January with no pilot and no problem statement, or if it refuses to help or dismisses SAFe as a bad choice.

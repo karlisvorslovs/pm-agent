@@ -1,0 +1,22 @@
+schema_version: "1.1"
+name: risk-check-rich-input
+description: A launch plan with an obvious external dependency and a key-person risk. Expect specific, scored risks with early warning signs.
+tags: [shared, risk-check]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Sanity check this before I promise it to the board. We launch the new loyalty programme in 12 stores on Mon 1 Feb 2027. The points engine is built by an outside agency, contract not signed yet. Only Marta knows the POS integration and she goes on parental leave in mid-January. Store staff training is planned for the last week of January. Budget is fixed at £120k.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?risk-check"'
+  - name: scored-table
+    type: regex
+    pattern: '\|\s*P\s*\|\s*I\s*\|'
+  - name: specific-risks
+    type: llm
+    criteria: |
+      PASS if the top risks include the unsigned agency contract for the points engine and the dependency on Marta before her leave, each with a probability and impact score, an early warning sign and a response, and the bottom line says whether the 1 Feb date is safe to promise.
+      FAIL if the risks are mostly generic (such as "scope creep" with no link to this plan), if every risk is scored as high, or if it invents facts not in the prompt.

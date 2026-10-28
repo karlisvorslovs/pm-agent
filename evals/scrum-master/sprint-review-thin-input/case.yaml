@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: sprint-review-thin-input
+description: A one-line request to prepare the sprint review. Expect questions about the Sprint Goal, Done work and attendees, not an invented demo.
+tags: [scrum-master, sprint-review, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    I need to get the sprint review ready for Friday.
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks for at least two of: the Sprint Goal and whether it was met, which items are Done and which aren't, who is coming, the Product Goal, or news such as budget or timeline changes. A generic agenda with placeholders alongside the questions is fine.
+      FAIL if the reply presents specific completed features, stakeholder names, feedback or results that the user never gave.

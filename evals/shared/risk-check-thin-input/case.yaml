@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: risk-check-thin-input
+description: A one-line plan. Expect questions about what is being committed to.
+tags: [shared, risk-check, thin-input]
+execution:
+  max_turns: 6
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    What could go wrong with our launch?
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks what is launching, when, and what the team depends on (or similar questions about the plan), and does not present a finished, scored risk table about invented details.
+      FAIL if the reply invents specifics about the launch such as dates, teams or vendors.

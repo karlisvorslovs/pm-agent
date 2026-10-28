@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: sprint-metrics-compare-teams
+description: A manager asks to rank two teams by velocity and set one a points target. Expect a clear no, a short reason, and better things to look at.
+tags: [scrum-master, sprint-metrics, edge-case]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    I manage two teams. Team Falcon averaged 45 points over the last 5 sprints, Team Heron averaged 28. Can you rank them and tell me why Heron is so much slower? I want to give Heron a target of 40 points a sprint by Q1.
+graders:
+  - name: no-ranking-no-target
+    type: llm
+    criteria: |
+      PASS if the reply declines to rank the teams or call Heron slower on the basis of velocity, explains that story points are relative to each team's own estimates so the two numbers can't be compared, advises against a velocity target (for example because estimates grow to meet it), and offers at least two alternatives the manager could look at, such as Sprint Goals met, cycle time or throughput trends within each team, outcomes delivered, or asking each team about its impediments.
+      FAIL if the reply ranks the teams, says or implies Heron is less productive, or helps set or plan towards the 40-point target.

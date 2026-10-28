@@ -1,0 +1,31 @@
+schema_version: "1.1"
+name: sprint-metrics-rich-input
+description: Six sprints of forecast, completed, added and removed points plus one burndown. Expect a correct velocity range, say/do, scope change and a burndown read-out with caveats.
+tags: [scrum-master, sprint-metrics]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you make sense of our last six sprints before Friday's retro?
+    Sprint | Forecast | Completed | Added after planning | Removed | Items carried over
+    21 | 30 | 26 | 3 | 0 | 2
+    22 | 32 | 30 | 0 | 2 | 1
+    23 | 28 | 31 | 5 | 0 | 0
+    24 | 34 | 22 | 8 | 0 | 4
+    25 | 30 | 27 | 2 | 3 | 2
+    26 | 31 | 25 | 6 | 0 | 3
+    Sprint 26 burndown, points remaining at the end of each day (10 days): 31, 31, 29, 29, 35, 35, 33, 33, 24, 12
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?sprint-metrics"'
+  - name: say-do-ratio
+    type: regex
+    pattern: 'say\s*/\s*do'
+    flags: i
+  - name: numbers-and-burndown
+    type: llm
+    criteria: |
+      PASS if all of these hold: (1) velocity is an average and a range over a stated window of three to five sprints, with correct arithmetic (sprints 22 to 26: average 27, range 22 to 31; or sprints 24 to 26: about 24.7, range 22 to 27; or sprints 23 to 26: 26.25, range 22 to 31); (2) sprint 26 say/do is about 81% (25 of 31); (3) sprint 26 added scope is 6 points, about 19% of the forecast; (4) the sprint 26 burndown is read as flat or slow, with a rise around day 5 and most points burned in the last two days, and at least two possible causes; (5) the reply includes caveats such as small sample size and that velocity is not a target.
+      FAIL if any of these numbers is wrong, if the reply invents data such as cycle times, Sprint Goals or extra sprints, or if it recommends a velocity target.

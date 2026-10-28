@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: sprint-planning-thin-input
+description: A one-line request to plan the next sprint with no team, dates or velocity. Expect clarifying questions, not an invented plan.
+tags: [scrum-master, sprint-planning, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you help me plan our next sprint?
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks for at least two of: who is in the team and their availability or leave, the sprint dates or length, velocity from past sprints, what the Product Owner wants the sprint to achieve, or the candidate backlog items. A plan or template with [TBC] placeholders alongside the questions is fine.
+      FAIL if the reply presents a capacity figure, velocity, Sprint Goal, team member names or story points as if they were the user's, when the user gave none of them.

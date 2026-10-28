@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: status-report-thin-input
+description: A request for a steering group update with no facts beyond "mostly fine". Expect questions about progress, milestones, budget and risks, and no Green status without evidence.
+tags: [project-manager, status-report, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you write this week's status update for the steering group? Things are mostly fine.
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks for at least three of these: the project name or week ending date, progress against the plan, milestone dates and forecasts, budget spent and forecast, risks and issues, and decisions needed. A draft is acceptable only if the RAG colours and all facts are [TBC].
+      FAIL if the reply presents a report with an overall RAG of Green (or any colour) based on "mostly fine" alone, or invents milestones, dates, figures or names.

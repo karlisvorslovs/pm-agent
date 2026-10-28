@@ -1,0 +1,27 @@
+schema_version: "1.1"
+name: meeting-actions-messy-notes
+description: Messy notes with one task that has no owner. Expect an actions table with owners and real dates, and the ownerless task flagged.
+tags: [shared, meeting-actions]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you turn these into actions? Ops review, Mon 9 Nov 2026. Me (Kim), Lars, Ana.
+    - supplier invoice errors again, Lars will call them before Thursday
+    - agreed to move the stock count to the 20th
+    - someone needs to update the returns policy page, legal changed the wording
+    - Ana to share the Q4 headcount numbers by end of week
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?meeting-actions"'
+  - name: actions-table
+    type: regex
+    pattern: '\|\s*Owner\s*\|'
+    flags: i
+  - name: owners-dates-and-gap
+    type: llm
+    criteria: |
+      PASS if the reply lists actions where Lars owns the supplier call due Thu 12 Nov 2026 (or "before Thursday" resolved to 11 or 12 Nov), Ana owns the headcount numbers due around Fri 13 Nov 2026, the stock count move appears as a decision, and the returns policy page update is shown with no owner and flagged as needing one.
+      FAIL if any action is given an owner who is not in the notes, if the returns policy task is silently assigned to someone, or if the stock count move is listed only as an action.

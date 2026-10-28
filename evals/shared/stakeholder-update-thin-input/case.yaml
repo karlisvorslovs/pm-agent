@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: stakeholder-update-thin-input
+description: No audience, no news, no ask. Expect questions.
+tags: [shared, stakeholder-update, thin-input]
+execution:
+  max_turns: 6
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you write an update for leadership?
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks what the update is about, who exactly it is for, or what the user needs from them, and does not present a finished update full of specific project facts.
+      FAIL if the reply invents project names, dates, numbers or statuses.

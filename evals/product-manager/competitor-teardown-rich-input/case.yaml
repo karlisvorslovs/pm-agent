@@ -1,0 +1,25 @@
+schema_version: "1.1"
+name: competitor-teardown-rich-input
+description: Two named competitors and second-hand claims from sales, with no web access in the eval. Expect the claims labelled unverified, nothing added from memory, a list to verify, and copy, ignore or counter implications.
+tags: [product-manager, competitor-teardown]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Need a teardown of Quillmark and Brightledger for the sales team, we keep losing small agencies to both. We're Pennant, invoicing for agencies, €12 per user per month, 14 day trial.
+    What sales tells me: Quillmark is cheaper, something like €9 a seat. Brightledger launched an AI receipt scanning thing last month, I saw it on LinkedIn. Two lost deals in October said Brightledger's onboarding was "way faster".
+    What should we copy and where do we fight back?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?competitor-teardown"'
+  - name: marks-unverified
+    type: regex
+    pattern: 'unverified|\[TBC'
+    flags: i
+  - name: no-invented-competitor-facts
+    type: llm
+    criteria: |
+      PASS if all of these hold: the reply says it could not check live sources (or needs to) and marks the sales team's claims (Quillmark at about €9 a seat, Brightledger's AI receipt scanning, the faster onboarding) as unverified or as coming from the user's notes; it adds no other prices, plans, features, funding, customer counts or dates for Quillmark or Brightledger; it lists what to verify and where (for example each competitor's pricing page or changelog); and it gives implications as copy, ignore or counter, each tied to the evidence it has.
+      FAIL if the reply states any fact about Quillmark or Brightledger that is not in the prompt without marking it unverified or [TBC], or cites a URL with an access date as if it had fetched the page.

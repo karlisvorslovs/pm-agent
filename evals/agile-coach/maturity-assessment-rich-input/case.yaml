@@ -1,0 +1,32 @@
+schema_version: "1.1"
+name: maturity-assessment-rich-input
+description: Two weeks of discovery notes for three teams, and a director who wants one score per team. Expect per-dimension findings with evidence, no single score, no ranking, and sequenced experiments.
+tags: [agile-coach, maturity-assessment]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Finished two weeks of discovery with the three route planning teams at Fernhill Logistics (Atlas, Beacon, Comet, about 22 people). My notes:
+    - 9 interviews: devs, both POs, the SM, eng manager, ops lead
+    - sat in on planning and retro for all three teams
+    - jira last 90 days: Atlas median cycle time 6d, 85th pct 15d. Beacon 14d / 38d. Comet 9d / 31d. throughput 4 to 7 items a week each. Beacon has ~20 items in progress for 7 devs
+    - Atlas releases every 2 weeks with an automated pipeline. Beacon and Comet release monthly after manual regression, with a 3 day freeze
+    - POs need head of product sign-off for anything bigger than a sprint. both POs said they spend most of their time on status reports
+    - retros happen everywhere. Atlas does its actions, Beacon and Comet mostly carry them over
+    - no team has talked to a real dispatcher (the users) this year, feedback comes through the ops lead
+    - the director, Pauline, wants one maturity score per team for the leadership offsite on the 19th so they can see who's ahead
+    Can you write up the assessment?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?maturity-assessment"'
+  - name: per-dimension-levels
+    type: regex
+    pattern: 'level\s*\d'
+    flags: i
+  - name: evidence-no-score-experiments
+    type: llm
+    criteria: |
+      PASS if findings are given per dimension with evidence taken from the notes, there is no single overall score per team or for the area and no ranking of Atlas, Beacon and Comet against each other, the reply addresses Pauline's request by explaining why and offering per-dimension findings or patterns instead, and the recommendations are experiments with an owner (or [TBC]) and a review date.
+      FAIL if any team gets one overall number or average, if the teams are put in a league table or ordered from best to worst, or if the reply invents metrics, interview quotes or people that are not in the notes.

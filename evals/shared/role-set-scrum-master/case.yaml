@@ -1,0 +1,19 @@
+schema_version: "1.1"
+name: role-set-scrum-master
+description: The short alias "sm" sets the scrum master role and lists its skills.
+tags: [shared, role]
+execution:
+  max_turns: 4
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: /role sm
+graders:
+  - name: confirms-role
+    type: regex
+    pattern: 'Role set to\W*Scrum master'
+    flags: i
+  - name: lists-role-skills
+    type: regex
+    pattern: '/sprint-planning[\s\S]*/retro[\s\S]*/definition-of-done'
+  - name: state-file-written
+    type: file_exists
+    path: '.claude/pm-agent.local.md'

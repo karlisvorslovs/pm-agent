@@ -1,0 +1,19 @@
+schema_version: "1.1"
+name: retro-tired-team
+description: A remote team fed up with retros, the same complaints every time and actions that never happen. Expect a format meant for tired teams, a reason, a look at old actions and a 60-minute plan.
+tags: [scrum-master, retro, edge-case]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    My team is fed up with retros. The last few have all been start stop continue, same complaints every time (too many meetings, slow code reviews) and the actions never get done. 7 people, all remote, we have 60 minutes on Thu 26 Nov 2026. Mood is pretty flat. Can you plan something different?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?retro"'
+  - name: format-for-a-tired-team
+    type: llm
+    criteria: |
+      PASS if all of these hold: the plan uses a format aimed at a tired team (such as a retro of retros, Lean Coffee or a one-question retro), not Start Stop Continue; it gives a reason tied to this team (repeated complaints, actions not done, flat mood); it looks at what happened to previous actions early in the session; its phase times add up to 60 minutes or less; it includes at least one tip for running it remotely; and it says the retro ends with at most three actions, each with one owner.
+      FAIL if it uses Start Stop Continue again, ignores the unfinished actions, runs over 60 minutes, or invents team members' names or feedback.

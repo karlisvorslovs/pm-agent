@@ -1,0 +1,25 @@
+schema_version: "1.1"
+name: discovery-interview-rich-input
+description: A clear decision, segment, sample and three hunches. Expect a full guide with falsifiable hypotheses, a behavioural screener and past-behaviour questions that don't pitch the idea.
+tags: [product-manager, discovery-interview]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    We're thinking about building automatic payment chasing into Pennant (invoicing for small agencies). Before we commit I want to do 8 interviews over the next two weeks with agencies of 5 to 30 people. Recruiting from trial users who didn't convert plus a few from LinkedIn.
+    My hunches: late payments are a monthly headache for them, they chase by hand over email, and they'd rather not be the "bad guy" with clients.
+    Can you put the interview guide together?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?discovery-interview"'
+  - name: has-screener
+    type: regex
+    pattern: 'screener'
+    flags: i
+  - name: mom-test-guide
+    type: llm
+    criteria: |
+      PASS if all of these hold: the guide states a research goal tied to the build decision; the hunches are written as hypotheses with a way to be proven wrong; the screener asks about behaviour (for example invoices sent or paid late in a recent period) and lists who to exclude; the main questions ask about specific past events (for example the last invoice that was paid late); the planned chasing feature is not described or pitched before the wrap-up, if at all; and the synthesis template has a count of participants per pattern and an evidence strength field, left empty.
+      FAIL if any question the interviewer is told to ask is about future behaviour, such as "Would you use", "Would you pay" or "How much would you pay" (naming those as questions to avoid is fine), if the interviewer is told to describe or pitch the planned chasing feature before the wrap-up (asking which tools or reminders they already use is fine), or if the reply presents any interview findings or participant quotes as if the interviews had already happened.

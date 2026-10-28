@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: retro-thin-input
+description: A one-line request to plan a retro with nothing about the team or the sprint. Expect questions about the situation before a format is chosen.
+tags: [scrum-master, retro, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you plan a retro for my team?
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks about the team's situation (for example how the sprint went, the mood, team size, room or remote, time available, or what happened to last retro's actions), or offers a default plan that is clearly marked as a default with its assumptions listed.
+      FAIL if the reply invents what happened in the sprint, team members' names, feedback or previous actions.

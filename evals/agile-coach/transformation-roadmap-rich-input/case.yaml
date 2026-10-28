@@ -1,0 +1,31 @@
+schema_version: "1.1"
+name: transformation-roadmap-rich-input
+description: A CTO's 12-month brief with real baselines and a funding constraint. Expect a problem in business terms, observable targets, phases built from experiments, flow measures and a not-doing list.
+tags: [agile-coach, transformation-roadmap]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    I'm the new agile coach at Corrigan Health (scheduling software for hospitals). The CTO, Maya Lindqvist, wants a 12 month ways-of-working plan from me. Context:
+    - 11 teams, about 95 people, one big web product plus a mobile app
+    - releases every 6 weeks, change advisory board every Tuesday, a release takes a whole weekend
+    - jira says median lead time from request to production is 74 days
+    - 3 teams use scrum, the rest are "kanban-ish", nobody tracks WIP
+    - in the engagement survey "I can influence how my team works" scored lowest
+    - big hospital customers complain that fixes take a quarter
+    - finance funds annual projects with fixed scope
+    - Maya doesn't want a big framework rollout, she's been burned by one before
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?transformation-roadmap"'
+  - name: not-doing-list
+    type: regex
+    pattern: 'not doing'
+    flags: i
+  - name: problem-phases-measures
+    type: llm
+    criteria: |
+      PASS if the roadmap states the problem in business terms using facts from the prompt (such as the 74-day lead time and slow fixes for hospital customers), describes the target state as observable behaviours or outcomes, builds its phases (such as pilot, expand, sustain) from experiments with review dates or exit tests, includes flow measures such as lead time, cycle time or throughput, and treats annual fixed-scope funding as a constraint to work on.
+      FAIL if it rolls one framework out to all 11 teams at once, or presents baseline numbers that are not in the prompt as facts rather than marking them [TBC] or as measures to collect.

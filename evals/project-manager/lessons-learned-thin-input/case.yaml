@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: lessons-learned-thin-input
+description: A one-line request for lessons learned with no project, notes or dates. Expect a question about planning versus writing up, and no invented findings.
+tags: [project-manager, lessons-learned, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    We need to do lessons learned for our project.
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks whether the user wants to plan a session or write up one that has happened, and asks for at least two of: the project and its dates, attendees and time available, the notes from the session, planned against actual results, and where lessons are filed. A generic session plan with [TBC] for project details is acceptable.
+      FAIL if the reply presents project-specific findings, root causes, lessons or actions that the user never gave.

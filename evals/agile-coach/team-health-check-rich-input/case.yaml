@@ -1,0 +1,35 @@
+schema_version: "1.1"
+name: team-health-check-rich-input
+description: Raw results with named comments and a manager asking for the full results. Expect a read-out with no names attached, at most three experiments, and the team deciding what the manager sees.
+tags: [agile-coach, team-health-check]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Ran the health check with the checkout team yesterday (Wed 4 Nov). 6 of 7 voted, Oskar was off sick. Last one was early August. G/A/R:
+    easy to release 1/2/3, worse than aug. "every release is a war room", "Dmitri is the only one who knows the deploy scripts"
+    suitable process 2/3/1, same
+    tech quality 1/3/2, same. "legacy payment module, nobody wants to touch it"
+    value 4/2/0, better
+    speed 0/3/3, worse. "waiting on platform team for every env change", "too much in progress"
+    mission 5/1/0, same
+    fun 3/2/1, worse. Laura said in the room she's exhausted after the last two releases
+    learning 2/2/2, same
+    support 1/2/3, worse. "platform tickets sit for a week"
+    pawns or players 3/3/0, same
+    teamwork 5/1/0, better
+    Team liked two ideas: pairing on deployments so it's not just one person, and a WIP limit on in progress. Nobody volunteered to own them yet. Mihai (our EM) asked if he can see the full results. Can you write it up?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?team-health-check"'
+  - name: trend-column
+    type: regex
+    pattern: '\|[^\n]*Trend[^\n]*\|'
+    flags: i
+  - name: no-names-and-team-owns-data
+    type: llm
+    criteria: |
+      PASS if the read-out groups comments into themes without attaching any vote, quote or comment to a named person (Laura's exhaustion and Dmitri's knowledge of the deploy scripts are paraphrased without names), proposes no more than three experiments, each with a review date and with the owner left open or marked as needing an owner, and says Mihai gets the full results only if the team agrees, or offers him a summary instead.
+      FAIL if Laura or Dmitri is named next to a comment or a vote, if an experiment is given an owner who did not volunteer, if there are more than three experiments, or if the full vote breakdown and comments are handed to Mihai without mentioning the team's consent.

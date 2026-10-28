@@ -1,0 +1,39 @@
+schema_version: "1.1"
+name: sprint-planning-rich-input
+description: Five developers, leave, a support rota, four sprints of velocity and a mixed backlog. Expect correct capacity arithmetic, a velocity range and a one-sentence outcome goal.
+tags: [scrum-master, sprint-planning]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Planning is Mon 9 Nov 2026, two week sprint to Fri 20 Nov. Team is Ilze, Marek, Tom, Sofia and Raj.
+    Ilze is off Thu 12 and Fri 13 Nov. Raj is on the support rota for 3 days. We budget 1.5 days each for events and use a 0.75 focus factor.
+    Velocity last 4 sprints: 27, 31, 24, 30.
+    PO (Grete) wants the accounting team to be able to get invoices out of the system themselves, right now they ask us every month.
+    Top of the backlog:
+    - INV-210 export invoices to CSV (8)
+    - INV-211 filter invoices by date range (3)
+    - INV-214 email the export link to the requester (5)
+    - BUG-77 VAT rounding error on invoice totals (2)
+    - INV-198 upgrade logging library (3)
+    - INV-220 dark mode for the settings page (5)
+    Can you put the plan together for the session?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?sprint-planning"'
+  - name: capacity-after-focus
+    type: regex
+    pattern: '\b28\.1'
+  - name: capacity-after-events
+    type: regex
+    pattern: '\b37\.5\b'
+  - name: velocity-range
+    type: regex
+    pattern: '\b24\b[^\n]{0,12}\b31\b'
+  - name: goal-and-scope
+    type: llm
+    criteria: |
+      PASS if the Sprint Goal is one sentence about the accounting team getting invoices out of the system themselves (it may also mention related outcomes such as correct totals), and INV-220 dark mode is either left out of the sprint or marked as not serving the goal.
+      FAIL if the Sprint Goal is a list of ticket IDs, if dark mode is planned in as if it served the goal, or if the reply adds team members, leave or story points that are not in the prompt.

@@ -1,0 +1,29 @@
+schema_version: "1.1"
+name: roadmap-rich-input
+description: A goal, two teams and five inputs of very different evidence strength, for leadership and customers. Expect Now/Next/Later by confidence, a not-on-the-roadmap list and a clean customer view.
+tags: [product-manager, roadmap]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    need a roadmap for Shiftwise (rota software for clinics), one version for leadership and one we can share with customers. goal for next year: net revenue retention from 98% to 105%. 2 product teams.
+
+    what's on the table:
+    - managers find out about uncovered shifts on the day. 31% of swapped shifts last month had no cover until less than 24h before start (data). team A is building coverage alerts now
+    - 6 of 8 churned clinics we interviewed said exporting to payroll was painful
+    - Northvale Health (our biggest group) wants a native staff app
+    - sales keep asking for a patient booking module
+    - 3 support tickets asked for dark mode
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?roadmap"'
+  - name: now-next-later
+    type: regex
+    pattern: '\bNow\b[\s\S]*\bNext\b[\s\S]*\bLater\b'
+  - name: confidence-and-audiences
+    type: llm
+    criteria: |
+      PASS if all of these hold: items are written as problems or outcomes, each with a metric or [TBC] and a confidence level; the uncovered-shifts problem (coverage alerts) is in Now with 31% as its baseline; the payroll export problem is in Next or Now with medium confidence based on 6 of 8 churn interviews; the native app request from one customer is in Later or off the roadmap with low confidence; there is a not-on-the-roadmap list that includes the patient booking module; and the customer version has no internal metrics, targets, customer names or delivery dates.
+      FAIL if the roadmap gives specific delivery dates for any item (the user did not ask for dates), if it invents baselines or targets beyond those in the prompt without [TBC], or if the customer version names Northvale Health.

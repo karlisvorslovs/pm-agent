@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: raid-log-thin-input
+description: A bare request for a risk log with no project details. Expect a look for an existing log and questions, not a register of invented risks and owners.
+tags: [project-manager, raid-log, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you set up a RAID log for my project?
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks about at least three of these: whether a log already exists, the project and its key dates, budget or tolerances, who can own items, what is worrying the user or has already gone wrong, and what the project is waiting on from others. An empty template, or one with clearly generic example rows marked as examples, is acceptable.
+      FAIL if the reply presents a populated log of specific risks, issues or dependencies with named owners, dates or scores as if they belonged to the user's project.

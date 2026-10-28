@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: metrics-tree-thin-input
+description: A one-line question about the North Star with no product context. Expect questions about customer value and the business model, not a chosen metric with made-up numbers.
+tags: [product-manager, metrics-tree, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    What should our North Star metric be?
+graders:
+  - name: asks-before-choosing
+    type: llm
+    criteria: |
+      PASS if the reply asks what value customers get from the product (or what the product does) and how the business makes money, and does not commit to a single North Star with baselines or targets. Example shapes of North Star metrics are fine if they are clearly labelled as examples.
+      FAIL if the reply states baselines, targets or current values the user never gave, or names a final North Star for a product it knows nothing about.

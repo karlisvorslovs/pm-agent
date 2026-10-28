@@ -1,0 +1,30 @@
+schema_version: "1.1"
+name: backlog-refinement-rich-input
+description: Five items with different gaps against a stated Definition of Ready. Expect two ready, one to split, two not ready with reasons, and specific questions for the PO.
+tags: [scrum-master, backlog-refinement]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Refinement is Wed 11 Nov 2026, 60 minutes, 6 devs plus our PO Agnese. Velocity is around 30 points. Our DoR: value clear, acceptance criteria, dependencies known, fits in a sprint, estimated.
+    Top of the backlog:
+    SHOP-301 Save delivery address for next time. As a returning customer I want my address saved so checkout is faster. AC: address saved after first order; can edit it in my account; can delete it. Estimated 3.
+    SHOP-305 Loyalty points. Customers earn and spend points. PO still deciding the rules. Rough guess 21.
+    SHOP-309 Pay in instalments at checkout. 4 ACs written. Needs the contract with the payment provider signed, legal says maybe end of November. Estimated 8.
+    SHOP-312 Search is slow. Some customers complained. No AC.
+    SHOP-315 Export orders to CSV for finance. AC: date range filter; columns as per finance's sheet; opens in Excel. Estimated 5.
+    Can you get this ready for the session?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?backlog-refinement"'
+  - name: needs-splitting-status
+    type: regex
+    pattern: 'needs splitting'
+    flags: i
+  - name: item-judgements
+    type: llm
+    criteria: |
+      PASS if all of these hold: SHOP-301 and SHOP-315 are marked ready; SHOP-305 is marked as needing splitting (and not ready while the rules are undecided) with at least two concrete slices that each give users something, such as earning points, spending points or seeing a balance; SHOP-309 is not ready because the payment provider contract isn't signed; SHOP-312 is not ready because it has no acceptance criteria or no measure of "slow", with a question or a timeboxed spike suggested; and there are specific questions for the Product Owner.
+      FAIL if SHOP-309 or SHOP-312 is marked ready, if acceptance criteria the user didn't give are presented as agreed rather than proposed, if an estimate is invented for SHOP-312, or if SHOP-305 is split by technical layer (front end, back end, testing).

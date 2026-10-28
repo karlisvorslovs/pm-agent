@@ -1,0 +1,32 @@
+schema_version: "1.1"
+name: working-agreements-rich-input
+description: Raw stickies from a session that ran out of time, with one split topic. Expect specific "We" behaviours, proposals marked as such, the split left open, a consent step and a review date.
+tags: [agile-coach, working-agreements]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Had the working agreements session with the Lynx team this morning (Tue 10 Nov). 7 people, Riga office 3 days a week, two people fully remote in Lisbon (2h behind Riga). What came out of the stickies:
+    - respect each other's time
+    - be responsive on slack
+    - PRs sit for days, sometimes a week
+    - stop booking meetings over lunch
+    - camera on in remote meetings?? (split, didn't settle it)
+    - daily at 9:30 is too early for the Lisbon folks
+    - "quality matters"
+    - decisions get made in the office kitchen and the remote people find out later
+    We ran out of time before turning any of it into actual agreements. Can you write them up so I can take them back to the team on Thursday?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?working-agreements"'
+  - name: we-statements
+    type: regex
+    pattern: '(?:^\s*(?:[-*]|\d+\.)|\|)\s*(?:\*\*)?We [a-z]'
+    flags: m
+  - name: specific-proposals-with-consent
+    type: llm
+    criteria: |
+      PASS if the vague stickies are turned into specific, observable "We ..." behaviours (for example a pull request review within a stated time, a stand-up time that works for both Riga and Lisbon, and office decisions written down where remote people see them), the draft is presented as a proposal for the team on Thu 12 Nov 2026 with a consent step, the camera question is left open or offered as options, and there is a review date and a note on what happens when an agreement is broken.
+      FAIL if lines stay as values with no behaviour (such as "We respect each other's time" on its own), if the camera question is decided in the draft, or if the draft is presented as already agreed by the team.

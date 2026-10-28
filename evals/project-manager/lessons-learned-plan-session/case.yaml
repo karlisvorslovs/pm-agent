@@ -1,0 +1,23 @@
+schema_version: "1.1"
+name: lessons-learned-plan-session
+description: A request to prepare a two-hour session after a tense phase between two departments. Expect a session plan, not a write-up, with a timed agenda, blameless ground rules that deal with the tension, and a timeline exercise.
+tags: [project-manager, lessons-learned, plan-mode]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    I'm running the end-of-project lessons learned for our finance system rollout on Thu 19 Nov 2026. 2 hours, in person, about 10 people including the vendor's PM. The last phase was rough and there was a fair bit of finger pointing between finance and IT. Can you help me prepare?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?lessons-learned"'
+  - name: has-timeline
+    type: regex
+    pattern: 'timeline'
+    flags: i
+  - name: plan-not-writeup
+    type: llm
+    criteria: |
+      PASS if all of these hold: (1) the reply is a session plan with a timed agenda that adds up to about 120 minutes; (2) it sets blameless ground rules and deals with the finance and IT tension directly, for example with a neutral facilitator, mixed groups, or talking about decisions and conditions rather than people; (3) it includes a timeline exercise prepared before the session from project records; (4) it ends the session with lessons and actions with owners.
+      FAIL if the reply writes up lessons or findings as if the session had already happened, if the agenda clearly runs over 2 hours, or if it invents facts about the project.

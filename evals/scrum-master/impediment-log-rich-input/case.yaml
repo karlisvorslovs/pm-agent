@@ -1,0 +1,29 @@
+schema_version: "1.1"
+name: impediment-log-rich-input
+description: Five blockers of different ages and kinds, with a known date and escalation contact. Expect correct ages in working days, triage, and escalation of the ones past two days.
+tags: [scrum-master, impediment-log]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Today is Thu 19 Nov 2026. Sprint goal: "customers can manage cookie consent from their account page". Can you put these into a proper impediment log?
+    1. Test environment keeps going down. Raised Mon 16 Nov. Platform team owns it, no ETA. Blocks all testing.
+    2. Legal still hasn't signed off the cookie banner wording. Asked Tue 3 Nov. We can't release without it.
+    3. End-to-end tests fail about 1 run in 5. Raised Wed 18 Nov. Annoying, slows merges.
+    4. Sales keep pulling Nora and Viktor into client demos, about a day a week each. Raised Mon 9 Nov.
+    5. Designers can't move tickets on the Jira board, permissions issue. Raised today.
+    I'm the scrum master (Ines). Escalations go to our head of engineering, Tomas.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?impediment-log"'
+  - name: escalated-to-column
+    type: regex
+    pattern: 'Escalated to'
+    flags: i
+  - name: ages-triage-escalation
+    type: llm
+    criteria: |
+      PASS if all of these hold: ages are 3, 12, 1, 8 and 0 working days for items 1 to 5 (or 3, 16, 1, 10 and 0 if clearly labelled as calendar days); items 1, 2 and 4 are escalated or marked for escalation, with Tomas named for at least items 2 and 4; the flaky end-to-end tests are triaged as something the team can fix and are not escalated to the organisation; the legal sign-off is shown as a risk to releasing or to the Sprint Goal; and every row has one owner (a named person from the prompt, the scrum master, or any clear marker that the owner is still missing, such as [owner?] or TBC).
+      FAIL if any age is wrong, if a row is given an owner who is not in the prompt, or if the reply invents impediments, dates or people.

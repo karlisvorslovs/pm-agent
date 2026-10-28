@@ -1,0 +1,28 @@
+schema_version: "1.1"
+name: raid-log-rich-input
+description: Risk review notes that mix all four RAID types, including a late delivery that is already an issue. Expect each item in the right table, P x I scores on 1 to 5 scales, and no invented owners.
+tags: [project-manager, raid-log]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Notes from today's risk review, Thu 12 Nov 2026. Project Kestrel, moving payroll to a new provider. Go-live Mon 1 Feb 2027, budget £280k. Can you get these into the RAID log?
+    - Paylinx (old provider) data extract was due Mon 9 Nov, still not here. Can't start migration testing without it. Ewa chasing their account manager
+    - Jonas (payroll lead) worried his team won't have time for the parallel run in January because of year end. If the parallel run gets cut we go live without a full comparison
+    - we're planning on HR freezing org structure changes from 1 Dec. Not confirmed, Marek to check with the HR director
+    - the bank has to approve our new payment file format before go-live. Ewa sent it Tue 3 Nov, no reply yet. Their usual turnaround is 15 working days
+    - heard the new provider's support team might be cut after their acquisition. Rumour only, but it would hurt
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?raid-log"'
+  - name: has-score-column
+    type: regex
+    pattern: '\|\s*Score\s*\|'
+    flags: i
+  - name: types-scores-owners
+    type: llm
+    criteria: |
+      PASS if all of these hold: (1) the late Paylinx data extract is logged as an issue, not only as a risk, with Ewa as owner; (2) the HR org freeze is logged as an assumption with Marek as owner and a validate-by date before Tue 1 Dec 2026; (3) the bank's approval of the payment file is logged as a dependency with a need-by date before Mon 1 Feb 2027; (4) the parallel run concern is a risk written with a cause and an effect, owned by Jonas, with probability and impact each between 1 and 5 and the score equal to their product; (5) the acquisition rumour is a risk whose owner is [TBC] or otherwise flagged as needing an owner.
+      FAIL if the late extract appears only as a risk, if any item is given an owner who is not named in the notes, if any score is not P multiplied by I, or if a weekday is wrong for its date.

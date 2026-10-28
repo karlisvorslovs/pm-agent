@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: prd-thin-input
+description: One line asking for a PRD with no problem, evidence or metric. Expect questions about the evidence and the metric, not an invented case.
+tags: [product-manager, prd, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you write me a PRD for a referral programme? Thinking customers get a discount for inviting friends.
+graders:
+  - name: asks-for-evidence-and-metric
+    type: llm
+    criteria: |
+      PASS if the reply asks what problem the referral programme solves or what evidence there is for it, and asks which metric should move and what its current value is. A draft alongside the questions is acceptable only if every gap is marked [TBC] and the evidence is shown as missing.
+      FAIL if the reply states a problem size, baseline, target, referral or conversion rate, discount amount, user quote or research finding that the user never gave, unless it is clearly marked [TBC] or offered as an option to decide.

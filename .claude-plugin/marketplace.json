@@ -1,0 +1,17 @@
+{
+  "name": "pm-agent",
+  "description": "PM Agent: one Claude Code plugin for project managers, product managers, agile coaches and scrum masters.",
+  "owner": {
+    "name": "Codnity",
+    "url": "https://codnity.com"
+  },
+  "plugins": [
+    {
+      "name": "pm-agent",
+      "source": "./",
+      "description": "A work assistant for people who run projects and products. Switch roles with /role and use 33 practical skills.",
+      "category": "productivity",
+      "tags": ["project-management", "product-management", "agile", "scrum"]
+    }
+  ]
+}

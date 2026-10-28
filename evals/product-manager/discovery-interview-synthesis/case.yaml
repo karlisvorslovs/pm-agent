@@ -1,0 +1,27 @@
+schema_version: "1.1"
+name: discovery-interview-synthesis
+description: Notes from four interviews, including a polite "I'd pay for that" and a counter-example. Expect counted patterns, an honest evidence rating and only verbatim quotes.
+tags: [product-manager, discovery-interview, edge-case]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Did 4 interviews on late payments this week. Can you pull out what we learned?
+
+    P1 (design agency, 12 ppl): last late invoice was 3 weeks over. owner chased by email 4 times herself. "I hate being the one who nags." tracks who owes what in a spreadsheet.
+    P2 (dev shop, 25 ppl): finance person already sends automated reminders from their accounting tool. late payments rare, maybe 1 a quarter.
+    P3 (marketing agency, 8 ppl): two invoices late last month. founder chased on the phone. said "I'd definitely pay for something that does this for me."
+    P4 (video studio, 6 ppl): late payments every month. owner tracks in a spreadsheet, chases by email when she remembers. has never looked for a tool.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?discovery-interview"'
+  - name: counts-out-of-four
+    type: regex
+    pattern: '\b[1-4] of 4\b'
+  - name: honest-synthesis
+    type: llm
+    criteria: |
+      PASS if all of these hold: patterns are reported with counts out of 4 (for example the owner or founder chasing by hand in 3 of 4, spreadsheet tracking in 2 of 4); the reply says four interviews is a small sample and rates the evidence as weak or early; P3's "I'd definitely pay" is treated as weak evidence because it is a statement about the future, not behaviour; P2 is noted as a counter-example who already automates reminders; and every quote shown appears word for word in the notes.
+      FAIL if any quote appears that is not in the notes, if the reply treats P3's statement as proof of willingness to pay, or if it claims a pattern across more participants than the notes support.

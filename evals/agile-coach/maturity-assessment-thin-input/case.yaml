@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: maturity-assessment-thin-input
+description: A vague request for a department assessment with no evidence. Expect questions or an assessment plan, not levels or scores.
+tags: [agile-coach, maturity-assessment, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    We need to do an agile maturity assessment for our department. Where do I start?
+graders:
+  - name: asks-or-plans-without-rating
+    type: llm
+    criteria: |
+      PASS if the reply asks about details such as scope, what prompted the assessment, who will see it, or what evidence exists, or gives an assessment plan (dimensions, evidence sources, timeline) with gaps marked [TBC], and does not rate the department.
+      FAIL if the reply assigns a maturity level or score to the department on any dimension, or presents findings, metrics or interview quotes the user never gave.

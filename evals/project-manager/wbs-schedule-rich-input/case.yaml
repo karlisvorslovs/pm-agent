@@ -1,0 +1,30 @@
+schema_version: "1.1"
+name: wbs-schedule-rich-input
+description: Six work packages with three-point estimates and dependencies, where a supplier lead time, not the obvious technical work, sets the end date. Expect correct PERT values, the right critical path and a go-live date with contingency.
+tags: [project-manager, wbs-schedule]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Need a WBS and schedule for the warehouse scanner rollout at Brannock Distribution. Start Mon 4 Jan 2027, Mon to Fri, no holidays to worry about. Team estimates in working days, best / likely / worst:
+    - site survey: 2 / 3 / 7, Kofi
+    - wifi upgrade: 5 / 8 / 17, after the survey, contractor is Corlan Networks
+    - order scanners: 10 / 10 / 16 (supplier lead time), can go as soon as the survey is done, Kofi
+    - WMS config: 4 / 6 / 14, Dana, can start on day one
+    - integration testing: 3 / 5 / 10, needs wifi, scanners and WMS config all done, Dana
+    - training: 2 / 2 / 3, after testing, Dana
+    - go-live after training
+    What's the critical path, and what go-live date can I safely give the ops director?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?wbs-schedule"'
+  - name: has-mermaid-gantt
+    type: regex
+    pattern: '```mermaid\s+gantt'
+  - name: pert-and-critical-path
+    type: llm
+    criteria: |
+      PASS if all of these hold: (1) PERT expected durations use (O + 4M + P) / 6 and match these values to one decimal place: survey 3.5, wifi 9.0, scanners 11.0, WMS config 7.0, testing 5.5, training 2.2 (2.17 is fine); (2) the critical path is site survey, order scanners, integration testing, training, with an expected length of about 22 working days; (3) the wifi upgrade path is noted as near-critical with about 2 days of float; (4) the go-live date offered to the ops director includes contingency beyond the expected finish, falls between Thu 4 Feb 2027 and Fri 12 Feb 2027, and every weekday shown is correct for its date.
+      FAIL if the critical path runs through the wifi upgrade or WMS config, if any PERT value is wrong by more than 0.1 day, if a single expected date is given with no contingency, or if the plan invents owners or holidays not in the prompt.

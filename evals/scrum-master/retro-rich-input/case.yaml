@@ -1,0 +1,40 @@
+schema_version: "1.1"
+name: retro-rich-input
+description: A pasted retro board with votes and last retro's actions, one of them not done. Expect grouped themes and at most three actions, each with one owner and a measure.
+tags: [scrum-master, retro]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Here's our retro board from today (Fri 20 Nov 2026), can you turn it into themes and actions? 6 of us: Dana, Oskar, Mei, Juris, Leila, Sam.
+    Last retro's actions: Oskar to set up a PR review rota (not done). Mei to add a smoke test to the deploy pipeline (done, caught 2 bad deploys).
+    Went well:
+    - smoke tests saved us twice (4 votes)
+    - pairing on the import job was great (2)
+    - PO answered questions fast (1)
+    Didn't go well:
+    - PRs waiting 2+ days for review (5 votes)
+    - PRs too big to review properly (3)
+    - standup runs 30 min (3)
+    - too many meetings on Wednesdays (2)
+    - staging down on Tuesday, lost half a day (2)
+    - nobody knew who was on support (1)
+    Ideas:
+    - review before starting new work (3)
+    - max 400 lines per PR (2)
+    - standup hard stop at 15 min (2)
+    - put the support rota on the team calendar (1)
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?retro"'
+  - name: measure-for-each-action
+    type: regex
+    pattern: 'know (if |whether )?it worked'
+    flags: i
+  - name: three-owned-actions
+    type: llm
+    criteria: |
+      PASS if all of these hold: there are at most three actions; each action has exactly one owner who is one of Dana, Oskar, Mei, Juris, Leila or Sam, or is marked [owner?] or TBC; each action has a concrete way to tell whether it worked; slow PR reviews and PR size are grouped as the top theme; and Oskar's unfinished review rota from last retro is explicitly carried over, changed or dropped rather than ignored.
+      FAIL if there are more than three actions, if any action is owned by "the team", by two people, or by someone not in the prompt, or if the reply invents votes, quotes or cards that are not on the board.

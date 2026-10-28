@@ -1,0 +1,24 @@
+schema_version: "1.1"
+name: metrics-tree-rich-input
+description: A product, a pricing model, baselines and a CEO who wants MRR as the North Star. Expect a customer-value North Star, a four-kind input tree in Mermaid, guardrails and a definitions table using the given baselines.
+tags: [product-manager, metrics-tree]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Need a north star + metrics tree for Fieldnote (job management app for small trades businesses, plumbers, electricians etc). They schedule jobs, complete them on site and send the invoice from the app. We charge per user per month.
+    Numbers (avg of last 8 weeks): 2,100 paying businesses, 1,350 complete at least one job a week, ~11 jobs completed per active business per week, median 3 days from job done to invoice sent. Support contacts about 9 per 100 active businesses a month.
+    Our CEO thinks the north star should just be MRR. Data is in Postgres + Mixpanel. Growth team owns activation, core team owns the job flow.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?metrics-tree"'
+  - name: mermaid-tree
+    type: regex
+    pattern: '```mermaid\s*\n\s*(flowchart|graph)\b'
+  - name: north-star-judgement
+    type: llm
+    criteria: |
+      PASS if all of these hold: the North Star is a customer-value measure over a period (for example jobs completed or invoiced per week), not MRR, revenue or sign-ups; the reply explains why MRR is better kept as the business outcome the North Star predicts; the North Star is checked against the four criteria (customer value, leads revenue, measurable, team can move it); the input metrics cover breadth, depth, frequency and efficiency and use the given baselines (1,350 active businesses, about 11 jobs per active business, 3 days to invoice); at least two guardrails are named, each with a threshold or [TBC]; and the definitions table has formula, data source, owner, cadence, baseline and target.
+      FAIL if MRR is the North Star, or if any baseline appears that is neither in the prompt, nor derived from it with the calculation shown (such as 1,350 × 11 ≈ 14,850), nor marked [TBC].

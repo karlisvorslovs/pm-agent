@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: meeting-actions-thin-input
+description: Two vague lines and no names. Expect clarifying questions, not invented actions.
+tags: [shared, meeting-actions, thin-input]
+execution:
+  max_turns: 6
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Write up the actions from today's meeting. We talked about the launch and some stuff about pricing.
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks for the actual notes or for details such as who attended, what was agreed or the meeting date, and does not present a table of actions with named owners or dates.
+      FAIL if the reply invents owners, dates or specific decisions that the user never gave.

@@ -1,0 +1,30 @@
+schema_version: "1.1"
+name: sprint-review-rich-input
+description: A review where the PO wants to demo an unfinished flow and a team change threatens the Product Goal. Expect only Done work shown, a timed agenda and a slot for the change.
+tags: [scrum-master, sprint-review]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Sprint review is Fri 20 Nov 2026 at 10:00, we have up to 2 hours. Sprint goal was "warehouse staff can scan returns back into stock without paper forms".
+    Done: scan returns screen, barcode lookup against orders, stock count updates live.
+    Not done: damaged goods flow (dev finished but testing isn't), printing return labels (blocked by the printer driver).
+    Our PO Malin wants to demo the damaged goods flow anyway because the ops manager keeps asking about it.
+    Coming: ops manager, two warehouse shift leads, finance controller.
+    Product goal: returns processed within 24 hours of arrival with no paper, by end of March.
+    News: finance told us one developer moves to another team in January.
+    Can you prepare the agenda and what we should ask them?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?sprint-review"'
+  - name: timed-agenda
+    type: regex
+    pattern: '\|\s*Time\s*\|'
+    flags: i
+  - name: done-only-and-team-change
+    type: llm
+    criteria: |
+      PASS if all of these hold: the damaged goods flow is not in the demo, and the reply explains it isn't Done so it goes back to the Product Backlog (it may be mentioned as not Done, with a forecast); printing return labels is also not demoed; the agenda shows times that add up to 2 hours or less; there is a slot for the January team change and what it means for the March Product Goal; and there are specific questions for the stakeholders tied to the items shown.
+      FAIL if the plan demos the damaged goods flow or label printing, if the agenda runs over 2 hours, or if it invents names for the ops manager, shift leads or finance controller.

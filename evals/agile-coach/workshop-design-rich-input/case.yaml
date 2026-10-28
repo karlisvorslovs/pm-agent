@@ -1,0 +1,23 @@
+schema_version: "1.1"
+name: workshop-design-rich-input
+description: A hybrid cross-team retro after a bad release with finger pointing. Expect a two-hour agenda with diverge and converge, named activities, a blameless frame and a plan for remote people.
+tags: [agile-coach, workshop-design]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Need to run a cross-team retro after the Halvard release went badly: 2 days late, rolled back on day one, and a lot of finger pointing between the web, mobile and platform teams. About 18 people (the 3 teams plus the QA lead and the release manager). I've got 2 hours on Tue 17 Nov, 12 of us in the Oslo office and 6 remote. Our delivery director wants concrete changes for the January release, not a blame session. Can you design it?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?workshop-design"'
+  - name: timed-agenda
+    type: regex
+    pattern: '(\b\d{1,2}:\d{2}\b|\b\d{1,3}\s?min)'
+    flags: i
+  - name: blameless-timed-hybrid
+    type: llm
+    criteria: |
+      PASS if the agenda fits within 120 minutes, has distinct diverge and converge stages, names specific activities with timings (for example a shared timeline, 1-2-4-All, What So What Now What, fishbone, 15% Solutions or dot voting), sets a blameless frame and looks at hand-offs between teams rather than at one team, includes a plan for the 6 remote participants, and ends with a step where changes get owners and dates.
+      FAIL if the timings add up to more than 120 minutes, if there is no plan for remote participants, or if any activity asks people to name which team or person caused the problems.

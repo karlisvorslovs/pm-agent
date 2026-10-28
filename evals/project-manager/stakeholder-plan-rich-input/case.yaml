@@ -1,0 +1,30 @@
+schema_version: "1.1"
+name: stakeholder-plan-rich-input
+description: A depot closure with a disengaged finance director, a resistant but influential depot manager and an IT contact who doesn't know yet. Expect correct quadrants, engagement gaps with actions, and a comms plan by audience.
+tags: [project-manager, stakeholder-plan]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you do the stakeholder analysis and comms plan for the depot consolidation at Coldharbour Foods? We're closing the Riverside depot and moving everything to Eastgate by the end of May 2027.
+    - Gita Rao, COO, sponsor, very hands-on
+    - Martin Hale, Finance Director, signed off the business case, doesn't want detail, just the savings
+    - Leon Burke, Riverside depot manager, against it, thinks Eastgate can't handle the volume. The drivers listen to him
+    - Riverside drivers and warehouse staff, about 60 people, worried about longer commutes. Union rep is Shona Pike
+    - Aisha Coleman, Eastgate depot manager, supportive but stretched
+    - IT: we need them to move the scanners and the WMS. Contact is Pete Novak, he hasn't really heard about it yet
+    - our top 5 customers: account managers own those relationships, customers only care that deliveries don't slip
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?stakeholder-plan"'
+  - name: has-channel-column
+    type: regex
+    pattern: '\|\s*Channel\s*\|'
+    flags: i
+  - name: quadrants-and-gaps
+    type: llm
+    criteria: |
+      PASS if all of these hold: (1) Gita Rao is in Manage closely; (2) Martin Hale is in Keep satisfied, not Manage closely; (3) Leon Burke is treated as high power or high influence because the drivers follow him, with current engagement Resistant, a desired level of Neutral or Supportive, and a specific one-to-one action to understand or address his volume concern, with an owner; (4) Pete Novak is shown as Unaware with an action to brief him; (5) the communications plan has rows by audience with a channel, a frequency and an owner, and the drivers and warehouse staff get a two-way channel or one involving Shona Pike.
+      FAIL if any person or group is invented beyond the prompt, if Martin Hale is put in Manage closely without a reason, if Leon Burke's resistance is handled only by a newsletter or broadcast message, or if attitudes are written as personal judgements such as "difficult".

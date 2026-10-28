@@ -1,0 +1,31 @@
+schema_version: "1.1"
+name: project-charter-rich-input
+description: A realistic brief with a contract-driven deadline, an approved budget and a stated exclusion. Expect a charter that treats the date as fixed, scopes out what was excluded, and leaves unnamed people as gaps.
+tags: [project-manager, project-charter]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Need a charter drafted for this please.
+    Replacing paper timesheets with a mobile app for our field engineers at Ardent Facilities. Sponsor is Helen Marsh, Ops Director. I'm the PM (Sam Ortiz).
+    - about 220 engineers across 4 regions
+    - payroll takes 3 working days to process timesheets each fortnight, and around 7% of timesheets have errors that need rework
+    - our payroll bureau contract (they key in the paper sheets) ends 30 Jun 2027, notice already given, so that date can't move
+    - budget £160k approved, includes contingency
+    - vendor shortlist is down to two, decision due by end of Nov
+    - NOT doing expenses or the overtime approval workflow in this phase
+    - steering group will be Helen, the finance director and the head of IT, names to follow
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?project-charter"'
+  - name: has-tolerances
+    type: regex
+    pattern: 'tolerance'
+    flags: i
+  - name: fixed-date-scope-out-no-invented-names
+    type: llm
+    criteria: |
+      PASS if all of these hold: (1) the charter names the date, Wed 30 Jun 2027 or 30 Jun 2027, as the fixed constraint and says scope or something other than the date flexes; (2) expenses and the overtime approval workflow are listed as out of scope; (3) objectives use the given baselines (3 working days of processing, about 7% error rate) and any target not given by the user is marked [TBC] or clearly labelled as a proposal; (4) the finance director and head of IT appear as roles or [TBC], not with invented names; (5) the budget is £160k and any split into categories is [TBC] rather than invented figures.
+      FAIL if the charter invents names for the finance director or head of IT, treats the budget or scope as the fixed constraint instead of the date, presents an invented budget breakdown as fact, or gives a wrong weekday for 30 Jun 2027.

@@ -1,0 +1,23 @@
+schema_version: "1.1"
+name: stakeholder-update-rich-input
+description: Bad news for a client sponsor with a clear ask. Expect the news in the first sentence, one ask with a date, and an email within the length limit.
+tags: [shared, stakeholder-update]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Need an email to Paul, the client's head of operations. UAT found 14 defects in the invoicing module, 3 of them critical (wrong VAT on credit notes). We can't go live on Mon 16 Nov 2026 as planned. Fixing and retesting takes about 8 working days, so earliest go-live is Mon 30 Nov. I need Paul to confirm by Thu 5 Nov whether his team can run a second UAT round from Mon 23 Nov.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?stakeholder-update"'
+  - name: has-subject
+    type: regex
+    pattern: 'Subject'
+    flags: i
+  - name: news-first-one-ask
+    type: llm
+    criteria: |
+      PASS if the email's first one or two sentences say go-live on 16 Nov will not happen and the earliest date is 30 Nov, there is one clear ask (confirm a second UAT round from 23 Nov) with the 5 Nov deadline, and the email body is under about 250 words.
+      FAIL if the delay is buried after other content, if there is no deadline on the ask, or if it invents new facts such as costs, names or causes not in the prompt.

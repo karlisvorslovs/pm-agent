@@ -1,0 +1,33 @@
+schema_version: "1.1"
+name: lessons-learned-rich-input
+description: Notes from a finished project that ran 7 weeks late and 12% over budget. Expect a blameless write-up with root causes, lessons as "When X, do Y" rules, and owned actions.
+tags: [project-manager, lessons-learned]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Here are the notes from the lessons learned on the Calder Bank branch kiosk rollout, can you write it up? Ran Jun to Oct 2026. Planned to finish Fri 28 Aug 2026, actually finished Fri 16 Oct 2026. Budget £240k, spent £268k.
+    went well:
+    - pilot in 2 branches first caught the receipt printer problem early
+    - weekly demo with branch managers, they felt involved
+    - Priti's cutover checklist, zero failed installs in the last 30 branches
+    didn't go well:
+    - kiosk hardware arrived 5 weeks late. Supplier (Tavora) only ships once a month and we only found out in July
+    - network team heard about the firewall changes 2 weeks before the first install and had to queue us behind other work
+    - 3 change requests for the screen layout after build, branch staff weren't in the design reviews
+    - contractor tester left in Aug and nobody else knew the test scripts
+    people suggested: get supplier lead times in writing at contract stage, bring network into planning at the start
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?lessons-learned"'
+  - name: has-root-causes
+    type: regex
+    pattern: 'root cause'
+    flags: i
+  - name: blameless-rules-and-actions
+    type: llm
+    criteria: |
+      PASS if all of these hold: (1) the write-up states the slip from Fri 28 Aug 2026 to Fri 16 Oct 2026 (7 weeks) and the £28k overspend (about 12%); (2) at least the late hardware has a root-cause chain that ends at something the organisation can change, such as lead times or shipping cycles not being checked at contract stage; (3) lessons are written as reusable rules in a "When X, do Y" form; (4) actions have owners and dates, with [TBC] where the notes give none; (5) the write-up says where it should be filed, or asks.
+      FAIL if a problem is pinned on a named person, if actions are given owners who are not in the notes, if lessons are only observations such as "communication could be better", or if the write-up invents causes or numbers that are not in the notes.

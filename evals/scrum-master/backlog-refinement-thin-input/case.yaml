@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: backlog-refinement-thin-input
+description: A vague request to prepare refinement with no items. Expect a request for the items and context, not invented stories.
+tags: [scrum-master, backlog-refinement, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    I need to prep for refinement tomorrow, can you help?
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks for the items to refine (pasted or as an export) and at least one more piece of context, such as the Definition of Ready, velocity or sprint length, how the team estimates, or how long the session is.
+      FAIL if the reply invents backlog items, acceptance criteria or estimates and presents them as the user's.

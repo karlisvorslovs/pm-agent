@@ -1,0 +1,23 @@
+schema_version: "1.1"
+name: launch-plan-risky-date
+description: A new pricing tier that sales want live on the Friday before the holidays. Expect Tier 1, the timing risk raised, and pricing readiness covered.
+tags: [product-manager, launch-plan, edge-case]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Sales want our new Teams plan live on Fri 18 Dec 2026 so they can close deals before year end. It's a new per-seat pricing tier that replaces the old Business plan for new customers. Existing Business customers keep their plan for now. What do we need for the launch?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?launch-plan"'
+  - name: tier-one
+    type: regex
+    pattern: 'Tier[\s:*]*1\b'
+    flags: i
+  - name: flags-timing-risk
+    type: llm
+    criteria: |
+      PASS if the reply classifies this as Tier 1 because it changes pricing and packaging, flags Fri 18 Dec 2026 as a risky launch day (a Friday just before the holidays, with thin support and on-call cover) and either proposes an earlier weekday or sets out specific mitigations, and includes readiness items for the pricing change such as billing set-up, updated terms or legal review, and sales enablement.
+      FAIL if the reply plans the launch for Fri 18 Dec 2026 without raising the timing risk, or classifies it below Tier 1 without a reason.

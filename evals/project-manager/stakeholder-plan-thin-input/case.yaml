@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: stakeholder-plan-thin-input
+description: A request for a stakeholder map with no project or names. Expect questions about the project and the people, not an invented register.
+tags: [project-manager, stakeholder-plan, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    I need a stakeholder map for my project, can you help?
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks about at least three of these: what the project is and what changes for people, who decides, pays, uses, works on or could block it (names and roles), who is for or against it, existing channels and meetings, and key dates. Explaining the power/interest grid or showing an empty template is acceptable.
+      FAIL if the reply presents a register or grid filled with specific named people, or with attitudes and engagement levels that the user never gave.

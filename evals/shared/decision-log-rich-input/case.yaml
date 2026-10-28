@@ -1,0 +1,22 @@
+schema_version: "1.1"
+name: decision-log-rich-input
+description: A clear decision with a rejected option and a revisit trigger. Expect a full entry that keeps the losing option and its reason.
+tags: [shared, decision-log]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Please log this. Steering group agreed on Tue 27 Oct 2026 to keep the mobile app on React Native instead of rewriting in native Swift and Kotlin. Native would give better performance but needs two extra hires we can't fund this year. Ines (CTO) made the call. We look again if crash rate goes above 2% or when the 2027 budget is set.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?decision-log"'
+  - name: has-id
+    type: regex
+    pattern: 'D-\d{3}'
+  - name: keeps-losing-option
+    type: llm
+    criteria: |
+      PASS if the entry states the decision as keeping React Native, names Ines (CTO) or the steering group as the decider, records native Swift and Kotlin as a rejected option with the reason (two extra hires that can't be funded), and gives both revisit triggers (crash rate above 2%, 2027 budget).
+      FAIL if the rejected option or its reason is missing, or if the entry invents facts such as costs, names or dates not in the prompt.

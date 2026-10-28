@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: team-health-check-rank-teams
+description: A head of engineering wants to average health check scores into a league table and link it to bonuses. Expect a clear no with reasons and a useful alternative.
+tags: [agile-coach, team-health-check, edge-case]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    I'm head of engineering at a 60-person company, 8 teams. We've run the squad health check every quarter for a year. I want to turn each team's votes into one average score, show a league table at the next all-hands, and use it as one input to the team leads' bonuses. Can you set that up for me?
+graders:
+  - name: declines-ranking-offers-alternative
+    type: llm
+    criteria: |
+      PASS if the reply advises against both the league table and the link to bonuses, explains why in concrete terms (for example that votes are self-reported, honest teams would look worse, and teams will start voting green), and offers an alternative such as looking at patterns by dimension across teams, shared with the teams' consent, to decide where to invest or support.
+      FAIL if the reply produces a scoring formula per team, a ranked table, or a bonus weighting, even with caveats attached.

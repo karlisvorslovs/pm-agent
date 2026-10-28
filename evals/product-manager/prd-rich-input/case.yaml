@@ -1,0 +1,28 @@
+schema_version: "1.1"
+name: prd-rich-input
+description: A busy PM's notes with data, interview counts, a target and a guardrail. Expect a PRD that uses those numbers exactly, rates the evidence and invents nothing.
+tags: [product-manager, prd]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    PRD for receipt reminders in Tallybook pls, need it for the eng kickoff Thursday.
+    context: month-end close is the pain. Sep data across 1,240 companies: 38% of expense lines have no receipt on day 1 of close. 9 of 12 finance admins we interviewed in Sep said chasing receipts is the worst part of close. ~85 support tickets a month tagged "receipt".
+    idea: nudge employees by push + email when an expense has no receipt after 48h, and let them forward receipts from their inbox.
+    goal: missing receipts down to 15% by end of Q1 2027. must not push notification opt-outs up, currently 4.1%.
+    team: 1 squad, 4 eng + 1 designer. want a beta with ~50 companies in Jan.
+    not doing OCR improvements this time.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?prd"'
+  - name: metrics-table
+    type: regex
+    pattern: 'Baseline[^\n]*Target'
+    flags: i
+  - name: numbers-evidence-and-risks
+    type: llm
+    criteria: |
+      PASS if all of these hold: the primary metric uses 38% as the baseline and 15% as the target, dated end of Q1 2027 (31 Mar 2027 or "end of Q1 2027"); the notification opt-out rate of 4.1% appears as a guardrail; the evidence is listed with a strength for each source, and the interview finding is reported as 9 of 12; OCR improvements appear as a non-goal; and the risks cover value, usability, feasibility and viability.
+      FAIL if the PRD contains any quotation attributed to a finance admin, employee or customer, or states a baseline, count or research result that is not in the prompt without marking it [TBC].

@@ -1,0 +1,28 @@
+schema_version: "1.1"
+name: change-request-rich-input
+description: A client change whose cost fits the sponsor's tolerance but whose upper-end delay does not. Expect correct cost and date ranges, a "do nothing" option, and routing to the steering group.
+tags: [project-manager, change-request]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Need a CR writing up. Kerrow Council housing repairs portal. Their head of housing, Nadia Brennan, wants SMS appointment reminders added before launch. Says missed appointments cost them a lot. Raised Mon 2 Nov 2026.
+    - dev estimate 8 to 14 days, plus 4 days testing, all at £550/day
+    - SMS gateway costs about £1,200 a year
+    - same devs are on the booking module, which is on the critical path, so launch moves 2 to 3 weeks from Mon 8 Feb 2027
+    - tolerances from the charter: me (PM) 5 working days and £5k, sponsor (Graham Wells) 10 working days and £15k, steering group beyond that
+    - we've already used £3k of cost tolerance on CR-004
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?change-request"'
+  - name: has-do-nothing
+    type: regex
+    pattern: 'do nothing'
+    flags: i
+  - name: impacts-and-routing
+    type: llm
+    criteria: |
+      PASS if all of these hold: (1) the one-off cost is £6,600 to £9,900 (12 to 18 days at £550) with £1,200 a year running cost shown separately; (2) the launch impact is 10 to 15 working days, moving launch to between Mon 22 Feb 2027 and Mon 1 Mar 2027; (3) "do nothing" is one of at least three options; (4) the option as requested is routed to the steering group because 15 working days at the upper end is beyond Graham Wells's 10-day tolerance, and the cost is checked against tolerance including the £3k already used on CR-004; (5) the benefit of fewer missed appointments is marked [TBC] or asked for, not given an invented figure.
+      FAIL if the change is routed to the PM, or to the sponsor alone without noting that the upper end of the delay breaks his tolerance, if the cost or date arithmetic is wrong, or if any figure is invented.

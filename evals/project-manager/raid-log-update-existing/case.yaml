@@ -1,0 +1,37 @@
+schema_version: "1.1"
+name: raid-log-update-existing
+description: An existing RAID log plus a week of news. Expect the log updated in place with IDs kept, a resolved issue closed rather than deleted, a false assumption turned into a new item, and a summary of what changed.
+tags: [project-manager, raid-log, update]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Here's our RAID log from last week's review (Thu 12 Nov 2026). Can you update it with this week's news? Review is today, Thu 19 Nov 2026.
+
+    | ID | Type | Item | Owner | P | I | Score | Due / review | Status |
+    |----|------|------|-------|---|---|-------|--------------|--------|
+    | R1 | Risk | Because January is year end, the payroll team may not have time for the parallel run, so we go live without a full comparison | Jonas | 4 | 4 | 16 | Thu 19 Nov 2026 | Open |
+    | R2 | Risk | Because the new provider was acquired, its support team may be cut, which would slow fixes after go-live | [TBC] | 2 | 4 | 8 | Thu 26 Nov 2026 | Open |
+    | A1 | Assumption | HR freezes org structure changes from 1 Dec 2026 | Marek | | | | Validate by Fri 20 Nov 2026 | Unvalidated |
+    | I1 | Issue | Paylinx data extract late, migration testing blocked | Ewa | | | | Fri 13 Nov 2026 | Open |
+    | D1 | Dependency | Bank approval of the new payment file format | Ewa | | | | Need by Fri 15 Jan 2027 | Not agreed |
+
+    News this week:
+    - extract arrived Tuesday, migration testing started Wednesday
+    - HR director says there's no freeze. Finance is restructuring and the new structure goes live 1 Jan, so payroll will need the new cost centres
+    - Jonas got two temps approved for January, so the parallel run looks a lot safer
+    - bank still hasn't replied
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?raid-log"'
+  - name: has-change-summary
+    type: regex
+    pattern: 'what changed'
+    flags: i
+  - name: updates-in-place
+    type: llm
+    criteria: |
+      PASS if all of these hold: (1) the existing IDs R1, R2, A1, I1 and D1 are kept, not renumbered; (2) I1 is closed or resolved with the arrival date (Tue 17 Nov 2026) and is still visible, for example in a Closed section; (3) A1 is marked false or invalid and a new item with a new ID (such as I2 or R3) covers the 1 Jan finance restructure and its cost centre impact, cross-referenced to A1; (4) R1's probability or score goes down because of the temps, with the change explained; (5) the reply ends with a summary of what changed since the last review, naming the new, closed and re-scored items.
+      FAIL if items are renumbered or deleted, if A1 is simply edited into a new statement without being closed, if R1's score is unchanged with no reason, or if there is no what-changed summary.

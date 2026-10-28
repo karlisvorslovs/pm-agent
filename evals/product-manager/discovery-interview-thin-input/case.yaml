@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: discovery-interview-thin-input
+description: A vague request for questions to ask customers. Expect questions about the research goal and participants, and no future-facing or leading interview questions.
+tags: [product-manager, discovery-interview, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    I want to talk to some of our customers next week. What should I ask them?
+graders:
+  - name: asks-goal-and-participants
+    type: llm
+    criteria: |
+      PASS if the reply asks what decision or research goal the interviews are for and who the participants are, and any example interview questions it offers ask about specific past behaviour rather than opinions or the future.
+      FAIL if the reply suggests questions such as "Would you use...", "How much would you pay...", "Do you like our idea" or other questions about hypothetical future behaviour, or presents findings, quotes or participant numbers as if they were real.

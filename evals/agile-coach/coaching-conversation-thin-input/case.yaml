@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: coaching-conversation-thin-input
+description: A vague request to prepare a coaching session with an unnamed scrum master. Expect questions or a general plan with gaps marked, not an invented problem.
+tags: [agile-coach, coaching-conversation, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    I've got a coaching session tomorrow with one of my scrum masters. Help me prep.
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks about details such as who asked for the session, what the scrum master wants to work on, whether it is a first session or a follow-up, the user's relationship to them, or the time available, or gives a general session plan with the coachee's situation marked [TBC].
+      FAIL if the plan assumes a specific problem, name, history or feeling for the scrum master that the user never gave.

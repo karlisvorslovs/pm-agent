@@ -1,0 +1,19 @@
+schema_version: "1.1"
+name: coaching-conversation-manager-referral
+description: A head of delivery wants a scrum master coached over a velocity drop and wants session summaries. Expect three-way contracting, confidentiality, and the drop explored as a system question.
+tags: [agile-coach, coaching-conversation, edge-case]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Our head of delivery, Ruth, wants me to coach Priit, one of our scrum masters, because velocity in his two teams has dropped about 30% since the summer. She'd like a short summary from me after each session on what we covered and whether he's improving. First session is next week, 45 mins. Can you help me plan it?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?coaching-conversation"'
+  - name: three-way-contract-and-confidentiality
+    type: llm
+    criteria: |
+      PASS if the plan proposes a three-way agreement between Ruth, Priit and the coach about goals and what gets reported back, keeps session content confidential to Priit (reporting at most attendance or themes Priit chooses to share), and treats the velocity drop as something to explore, including causes in the system around the teams, rather than as Priit's performance problem.
+      FAIL if the plan agrees to send Ruth summaries of what was discussed without Priit's agreement, if it treats Priit as the cause of the velocity drop, or if it sets Priit's goal for him without asking what he wants.

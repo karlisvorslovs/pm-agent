@@ -1,0 +1,32 @@
+schema_version: "1.1"
+name: prioritise-fixed-release
+description: A fixed-date release where sales call everything a must and the work exceeds capacity. Expect MoSCoW with the Must share of effort calculated and items moved out.
+tags: [product-manager, prioritise, edge-case]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    We have to ship the new checkout by Tue 15 Dec 2026, no moving it. Team has 40 person-days left. Sales says everything below is a must. Help me work out what's actually in.
+
+    - card payments: 10 days
+    - order confirmation email: 3 days
+    - guest checkout: 8 days
+    - discount codes: 6 days
+    - saved cards: 7 days
+    - order tracking page: 5 days
+    - gift wrap option: 2 days
+    - accessibility fixes on checkout (WCAG AA): 4 days
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?prioritise"'
+  - name: has-wont
+    type: regex
+    pattern: '\bWon.?t\b'
+    flags: i
+  - name: moscow-with-effort-share
+    type: llm
+    criteria: |
+      PASS if the reply uses MoSCoW (or explains why it suits a fixed-date release better than scoring), adds up the effort (45 person-days against 40 available), keeps Must items at or below about 60% of the 40 person-days (about 24 days) or clearly flags that they exceed it and says what to change, and moves at least 5 person-days of items to Won't for this release.
+      FAIL if every item stays in the release, if all items are labelled Must, or if the Must share of effort is not calculated.

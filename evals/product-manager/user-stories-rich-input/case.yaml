@@ -1,0 +1,30 @@
+schema_version: "1.1"
+name: user-stories-rich-input
+description: A pause-subscription epic with a cut-off rule, a failed-payment rule and two user types. Expect vertical slices with concrete Given/When/Then criteria.
+tags: [product-manager, user-stories]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    can you break this down into stories for the team? epic: pause subscription (Forkful meal kits)
+    - customers pause for 1 to 4 weeks, from the app (iOS, Android) and web
+    - cut-off for changing next week's box is Wed 23:59 UK time
+    - can't pause if the last payment failed, show them how to fix their card
+    - can resume early any time before a cut-off
+    - confirmation email whenever a pause starts or changes
+    - CS agents need to pause on behalf of customers from the admin tool
+    - not doing: skipping individual meals, pausing for more than 4 weeks
+    we use Jira, 2 week sprints
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?user-stories"'
+  - name: given-when-then
+    type: regex
+    pattern: 'Given[\s\S]{1,300}When[\s\S]{1,300}Then'
+  - name: vertical-slices-and-rules
+    type: llm
+    criteria: |
+      PASS if all of these hold: the stories are vertical slices that each deliver something a customer or agent can do (for example a basic pause, a multi-week pause, resuming early, the failed-payment block, an agent pausing on a customer's behalf); at least one acceptance criterion tests the Wednesday 23:59 UK cut-off with concrete times before and after it; the failed-payment rule appears as an unhappy-path criterion; and skipping individual meals and pauses over four weeks are listed as out of scope.
+      FAIL if any story is split by technical layer (such as "build the pause API" or "front end for pause"), if story point estimates are assigned, or if the reply adds a new limit, fee or eligibility rule that is not in the prompt without marking it [TBC].

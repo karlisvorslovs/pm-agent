@@ -1,0 +1,28 @@
+schema_version: "1.1"
+name: prioritise-rich-input
+description: Five items with RICE inputs and a capacity limit. Expect correct arithmetic, the near tie at the top called out, and the large item cut.
+tags: [product-manager, prioritise]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you RICE these for me? Reach is accounts per quarter. We have roughly 6 person-months of capacity next quarter.
+
+    1. Smart payment reminders: reach 5,000, impact low, confidence 80%, effort 2 PM
+    2. Bulk invoice export: reach 1,800, impact medium, confidence 80%, effort 1.5 PM
+    3. Accounting software sync: reach 3,000, impact high, confidence 50% (mostly sales anecdotes), effort 6 PM
+    4. Multi-currency invoices: reach 400, impact massive, confidence 100%, effort 3 PM
+    5. SSO: reach 150, impact high, confidence 100%, effort 1 PM
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?prioritise"'
+  - name: shows-working
+    type: regex
+    pattern: '5,?000\s*[×x*]\s*0\.5\s*[×x*]\s*(0\.8|80\s*%)\s*[÷/]\s*2'
+  - name: rice-arithmetic-and-cut
+    type: llm
+    criteria: |
+      PASS if the scores are correct for the given inputs (smart payment reminders 1,000; bulk invoice export 960; accounting software sync 500; multi-currency invoices 400; SSO 300, allowing for rounding), each row shows its arithmetic, the ranking follows the scores or explains any departure, the reply notes that the top two are close enough to be treated as a tie, and it draws a capacity line at 6 person-months that leaves out accounting software sync.
+      FAIL if any score is wrong by more than rounding, if impact is mapped to values other than low = 0.5, medium = 1, high = 2 and massive = 3, or if no items are cut.

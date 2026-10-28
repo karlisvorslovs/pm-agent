@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: team-health-check-thin-input
+description: A one-line request with no team details. Expect clarifying questions or a clearly assumed design, never invented results.
+tags: [agile-coach, team-health-check, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you help me do a health check with my team?
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks about details such as team size, co-located or remote, whether there is an earlier health check, who will see the results or how much time there is, or offers a session design with its assumptions stated and gaps marked [TBC].
+      FAIL if the reply presents votes, traffic lights, trends or quotes for a team the user never described, or invents facts about the team such as its name, size or problems.

@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: wbs-schedule-thin-input
+description: A request for a plan and a Gantt chart with no scope, dates, people or estimates. Expect questions, not invented durations and dates.
+tags: [project-manager, wbs-schedule, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you do me a project plan with a gantt chart for rolling out our new booking system?
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks at least three of these: the main deliverables or scope, the start date, fixed dates such as go-live, who does the work and their availability, estimates (ideally best, likely and worst case), and holidays. A draft WBS outline is acceptable if every duration and date is [TBC].
+      FAIL if the reply presents a schedule or Gantt chart with specific durations or calendar dates that the user never gave, unless each one is clearly marked as a placeholder to be replaced.

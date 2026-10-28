@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: launch-plan-thin-input
+description: A request for a launch plan with no feature, date or audience. Expect questions, not an invented launch date or dated timeline.
+tags: [product-manager, launch-plan, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    We're launching a new feature soon. Can you do a launch plan?
+graders:
+  - name: asks-before-planning
+    type: llm
+    criteria: |
+      PASS if the reply asks what is launching and for whom, the target date, and at least one of: whether pricing or customer action is involved, the success metric, or which teams are involved. It may explain the launch tiers.
+      FAIL if the reply presents a launch plan with a specific launch date, a dated timeline, a named feature or target numbers that the user never gave.

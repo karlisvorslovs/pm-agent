@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: definition-of-done-thin-input
+description: A one-line request for a Definition of Done with no context. Expect questions about the product and current checks, or a draft clearly marked as a starting point.
+tags: [scrum-master, definition-of-done, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    We need a definition of done for the team.
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks at least two questions about the team's context (such as what they build, how often they release, which checks or tools they use today, company standards, or what is going wrong), either on their own or alongside a starting draft that is clearly marked as a draft with [TBC] for setup-specific details.
+      FAIL if the reply presents tools, environments, coverage thresholds or standards as the team's existing practice when the user never mentioned them.

@@ -1,0 +1,30 @@
+schema_version: "1.1"
+name: status-report-rich-input
+description: A week of notes with one milestone slipped 7 working days inside a 10-day tolerance and a healthy budget. Expect an Amber report with the slip in the milestones table, options, a recommendation and a dated decision.
+tags: [project-manager, status-report]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Write the weekly status report for Project Atlas (new warehouse management system at Fenwick & Rowe), week ending Fri 13 Nov 2026. It goes to Claire Dunmore (sponsor) and the steering group. Tolerances are 10 working days on time and 5% on cost.
+    - config sprint 4 finished, 36 of 40 config items done vs 38 planned
+    - interface to the carrier booking system: the vendor (Stratum WMS) found a mapping problem, fix promised Wed 18 Nov
+    - system test start was baselined Mon 16 Nov, now forecast Wed 25 Nov because of the interface
+    - go-live still Mon 1 Feb 2027, but the buffer between system test and UAT drops from 10 days to 3
+    - spent £410k of £620k, forecast at completion £605k
+    - options: ask Stratum to put a second developer on the interface (they quoted £8k), or start system test on everything except the carrier interface
+    - need Claire to decide on the £8k by Tue 17 Nov
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?status-report"'
+  - name: has-milestone-baseline
+    type: regex
+    pattern: '\|\s*Baseline\s*\|'
+    flags: i
+  - name: amber-with-options
+    type: llm
+    criteria: |
+      PASS if all of these hold: (1) the overall status is Amber; (2) the milestones table shows system test start with baseline Mon 16 Nov 2026, forecast Wed 25 Nov 2026 and a variance of 7 working days; (3) budget is Green, using the £605k forecast against £620k (still within budget with the £8k added); (4) the report gives at least two options, drawn from the second developer, starting system test without the carrier interface, and doing nothing, with one recommendation; (5) a decision is asked of Claire Dunmore by Tue 17 Nov 2026.
+      FAIL if the overall status is Green or Red, if the slip is missing from the milestones table, if the variance is given in calendar days without saying so, or if the report invents figures, names or dates not in the prompt.

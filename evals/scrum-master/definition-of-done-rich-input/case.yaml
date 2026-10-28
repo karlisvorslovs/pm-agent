@@ -1,0 +1,25 @@
+schema_version: "1.1"
+name: definition-of-done-rich-input
+description: A vague DoD, a 14-point DoR that bounces half the stories, a yearly pen test and accessibility complaints. Expect a three-level DoD, a trimmed DoR with the stage-gate warning, and paste-ready checklists.
+tags: [scrum-master, definition-of-done]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you review our DoR and draft a proper DoD? We're 7 people building the booking web app and mobile app for a gym chain (Kestrel Fitness, about 40 clubs). Every PR gets reviewed and merges deploy to staging automatically. We release to production every Tuesday. Pen test happens once a year before the summer release. We've had complaints from members who use screen readers.
+    Current DoD is just "code reviewed, tested, PO happy".
+    Our DoR has 14 points: user story format, value statement, acceptance criteria, designs signed off by the design lead, copy approved by marketing, analytics events defined, API contract agreed, test cases written, dependencies resolved, estimated, fits in sprint, PO sign-off, architect review, security review.
+    The devs say about half our stories bounce back as not ready.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?definition-of-done"'
+  - name: checkbox-checklist
+    type: regex
+    pattern: '-\s\[\s\]'
+  - name: levels-and-trimmed-dor
+    type: llm
+    criteria: |
+      PASS if all of these hold: (1) the DoD has separate item, Increment and release levels; (2) it includes an accessibility check linked to the screen reader complaints, and a security check; (3) the yearly pen test sits at release level and is called out as undone work or a risk; (4) the review says the 14-point DoR has become a stage gate and cuts it to about five to seven criteria, saying which points to drop or move elsewhere (such as sign-offs from outside the Scrum Team); (5) the checklists use Markdown checkboxes.
+      FAIL if the DoR keeps all 14 points or gets longer, if the DoD lines are as vague as "tested", or if the reply presents tools the team didn't mention as already in use.

@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: competitor-teardown-thin-input
+description: A one-line request for a competitor analysis with no names or context. Expect questions about competitors, segment and decision, and no competitor facts.
+tags: [product-manager, competitor-teardown, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you do a competitor analysis for us?
+graders:
+  - name: asks-before-researching
+    type: llm
+    criteria: |
+      PASS if the reply asks which competitors to cover and at least one of: what the user's product and segment are, or what decision the analysis is for. It may describe what the teardown will include.
+      FAIL if the reply names specific competitors and states their prices, features, funding or customers as facts.

@@ -1,0 +1,31 @@
+{
+  "name": "pm-agent",
+  "displayName": "PM Agent",
+  "version": "1.0.0",
+  "description": "A work assistant for project managers, product managers, agile coaches and scrum masters. Switch roles with /role and get 33 practical skills: charters, status reports, PRDs, prioritisation, retros, sprint planning, health checks and more.",
+  "author": {
+    "name": "Codnity",
+    "url": "https://codnity.com"
+  },
+  "homepage": "https://github.com/karlisvorslovs/pm-agent",
+  "repository": "https://github.com/karlisvorslovs/pm-agent",
+  "license": "MIT",
+  "keywords": [
+    "project-management",
+    "product-management",
+    "agile",
+    "scrum",
+    "scrum-master",
+    "agile-coach",
+    "prd",
+    "retrospective",
+    "status-report"
+  ],
+  "skills": [
+    "./skills/shared/",
+    "./skills/project-manager/",
+    "./skills/product-manager/",
+    "./skills/agile-coach/",
+    "./skills/scrum-master/"
+  ]
+}

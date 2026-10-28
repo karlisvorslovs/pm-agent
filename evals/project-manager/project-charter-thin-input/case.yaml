@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: project-charter-thin-input
+description: A one-line request for a charter with no sponsor, dates or budget. Expect questions about the sponsor, the fixed constraint, the deadline and the budget, not an invented charter.
+tags: [project-manager, project-charter, thin-input]
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Can you put together a charter for our new website project? Need something to show the board.
+graders:
+  - name: asks-before-inventing
+    type: llm
+    criteria: |
+      PASS if the reply asks at least three of these: who the sponsor is, which of scope, date, budget and quality is fixed, what the deadline is, what the budget is, and what problem the website should solve or how success is measured. A draft is acceptable only if every sponsor, date, budget figure and target is a [TBC] placeholder.
+      FAIL if the reply presents a charter with an invented budget amount, a specific deadline, named people, or numeric targets that the user never gave.
